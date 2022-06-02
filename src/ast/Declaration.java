@@ -5,11 +5,15 @@ import java.util.List;
 
 public class Declaration extends Expression {
 
-    public String type;
-    public List<String> variables;
+    public Expression left;
+    public Expression right;
 
-    public Declaration(String type, ArrayList<String> variables){
-        this.type = type;
-        this.variables = variables;
+    public Declaration(Expression left, Expression right){
+        this.left = left;
+        this.right = right;
+    }
+
+    public Declaration(Expression left){
+        this.left = left;
     }
 }

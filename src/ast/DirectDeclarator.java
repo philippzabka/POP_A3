@@ -1,7 +1,6 @@
 package ast;
 
-public class DirectDeclarator extends Expression{
-
+public class DirectDeclarator extends Expression {
     public String name;
     public String bracketLeft;
     public String bracketRight;
@@ -10,5 +9,9 @@ public class DirectDeclarator extends Expression{
         this.name = name;
         this.bracketLeft = bracketLeft;
         this.bracketRight = bracketRight;
+    }
+
+    public DirectDeclarator(String name){
+        this.name = name;
     }
 }

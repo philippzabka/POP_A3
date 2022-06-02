@@ -1,9 +1,16 @@
 int main(){
 
-    int a,b,c,d,res;
+    unsigned int i,n,m,x,res;
 
-    a=1;
-    b=2;
-    c=3;
-    d=4;
+     x=11;
+     // printf("Please input a non-negative integer value: ");
+     // scanf("%d", &x);
+
+     n=0;
+     m=1;
+
+     for (i=m; i<=x; i+=m){
+        n=n+1;
+     }
+
 }

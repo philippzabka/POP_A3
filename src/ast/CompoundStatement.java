@@ -1,7 +1,6 @@
 package ast;
 
-public class CompoundStatement extends Expression{
-
+public class CompoundStatement extends Expression {
     public String bracketLeft;
     public Expression exprMiddle;
     public String bracketRight;
