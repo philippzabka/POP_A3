@@ -11,7 +11,7 @@ public class AntlrToCompUnit extends CBaseVisitor<CompilationUnit> {
         for(int i = 0; i < ctx.getChildCount(); i++){
             if(i != ctx.getChildCount() - 1) {
                 // Skip EOF
-                System.out.println(ctx.getChild(i).getText());
+//                System.out.println(ctx.getChild(i).getText());
                 compilationUnit.addExpression(exprVisitor.visit(ctx.getChild(i)));
             }
         }

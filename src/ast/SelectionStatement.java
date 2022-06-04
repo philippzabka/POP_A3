@@ -6,8 +6,9 @@ public class SelectionStatement extends Expression {
     public String elseToken;
     public String bracketLeft;
     public String bracketRight;
-    public Expression ifExpr;
     public Expression ifClauseExpr;
+
+    public Expression ifExpr;
     public Expression elseExpr;
 
     public SelectionStatement(String ifToken, String bracketLeft, Expression ifClauseExpr,

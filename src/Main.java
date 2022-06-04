@@ -1,9 +1,12 @@
 import antlr.CLexer;
 import ast.AntlrToCompUnit;
 import antlr.CParser;
+import ast.CompilationUnit;
+import ast.ExpressionProcessor;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
 
@@ -16,11 +19,14 @@ public class Main {
             String fileName = args[0];
             CParser parser = getParser(fileName);
 
-            AntlrToCompUnit anltrCompUnit = new AntlrToCompUnit();
-            anltrCompUnit.visitCompilationUnit(parser.compilationUnit());
+            ParseTree ast = parser.compilationUnit();
+            AntlrToCompUnit visitor = new AntlrToCompUnit();
+            CompilationUnit startingRule = visitor.visit(ast);
+            ExpressionProcessor ep = new ExpressionProcessor(startingRule.expressions);
 
-//            AntlrToExpression expr = new AntlrToExpression();
-//            expr.visitDeclaration(parser.declaration());
+            for(String evaluation: ep.getEvaluationResults()) {
+                System.out.println(evaluation);
+            }
         }
     }
 
