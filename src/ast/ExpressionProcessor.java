@@ -122,61 +122,45 @@ public class ExpressionProcessor {
                 return getEvaluationResult(((AdditiveExpression) e).expressions.get(0));
             }
             else {
-//                System.out.println("SIZE: "+((AdditiveExpression) e).expressions.size());
-//                Stack<String> varStack = new Stack<>();
-//                Stack<String> opStack = new Stack<>();
                 ArrayList<String> vars = new ArrayList<>();
                 for(int i = 0; i < ((AdditiveExpression) e).expressions.size(); i++){
                     vars.add(getEvaluationResult(((AdditiveExpression) e).expressions.get(i)));
                 }
 
-//                Collections.reverse(((AdditiveExpression) e).operators);
-//                ((AdditiveExpression) e).operators.forEach(opStack::push);
-                System.out.println("NUMS: " + vars + " OPS: " + ((AdditiveExpression) e).operators);
+                Collections.reverse(vars);
+                Stack<String> varsStack = new Stack<>();
+                vars.forEach(varsStack::push);
+//                System.out.println("STACK"+varsStack);
+//                System.out.println("NUMS: " + vars + " OPS: " + ((AdditiveExpression) e).operators);
 
                 int result = 0;
                 for(String op: ((AdditiveExpression) e).operators){
-                    for(int i = 0; i < vars.size() - 1; i++){
-                        if(i == 0) {
-                            if (symbolTable.containsKey(vars.get(i)) && symbolTable.containsKey(vars.get(i + 1))) {
-                                int left = symbolTable.get(vars.get(i));
-                                int right = symbolTable.get(vars.get(i + 1));
-                                System.out.println("INTM: " + left + " " + right);
-                                result += getAdditiveResult(left, right, op);
-                                System.out.println("INTMR: " + result);
-                            } else if (symbolTable.containsKey(vars.get(i)) && !symbolTable.containsKey(vars.get(i + 1))) {
-                                int left = symbolTable.get(vars.get(i));
-                                int right = Integer.parseInt(vars.get(i + 1));
-                                System.out.println("INTM: " + left + " " + right);
-                                result += getAdditiveResult(left, right, op);
-                                System.out.println("INTMR: " + result);
-                            } else if (!symbolTable.containsKey(vars.get(i)) && symbolTable.containsKey(vars.get(i + 1))) {
-                                int left = Integer.parseInt(vars.get(i));
-                                int right = symbolTable.get(vars.get(i + 1));
-                                System.out.println("INTM: " + left + " " + right);
-                                result += getAdditiveResult(left, right, op);
-                                System.out.println("INTMR: " + result);
-                            } else {
-                                int left = Integer.parseInt(vars.get(i));
-                                int right = Integer.parseInt(vars.get(i + 1));
-                                System.out.println("INTM: " + left + " " + right);
-                                result += getAdditiveResult(left, right, op);
-                                System.out.println("INTMR: " + result);
-                            }
-                        }
-                        else {
-                            if(symbolTable.containsKey(vars.get(i+1))){
-                                int right = symbolTable.get(vars.get(i+1));
-                                result += getAdditiveResult(result, right, op);
-                            }
-                            else {
-                                int right = Integer.parseInt(vars.get(i+1));
-                                result += getAdditiveResult(result, right, op);
-                            }
-                        }
+                    String left = varsStack.pop();
+                    String right = varsStack.pop();
+//                    System.out.println("POP:" + left +" "+ right);
+                    if (symbolTable.containsKey(left) && symbolTable.containsKey(right)) {
+//                        System.out.println("INTM: " + left + " " + right);
+                        result = getAdditiveResult(symbolTable.get(left), symbolTable.get(right), op);
+                        varsStack.push(Integer.toString(result));
+//                        System.out.println("INTMR: " + result);
+                    } else if (symbolTable.containsKey(left) && !symbolTable.containsKey(right)) {
+//                        System.out.println("INTM: " + left + " " + right);
+                        result = getAdditiveResult(symbolTable.get(left), Integer.parseInt(right), op);
+                        varsStack.push(Integer.toString(result));
+//                        System.out.println("INTMR: " + result);
+                    } else if (!symbolTable.containsKey(left) && symbolTable.containsKey(right)) {
+//                        System.out.println("INTM: " + left + " " + right);
+                        result = getAdditiveResult(Integer.parseInt(left), symbolTable.get(right), op);
+                        varsStack.push(Integer.toString(result));
+//                        System.out.println("INTMR: " + result);
+                    } else {
+//                        System.out.println("INTM: " + left + " " + right);
+                        result = getAdditiveResult(Integer.parseInt(left), Integer.parseInt(right), op);
+                        varsStack.push(Integer.toString(result));
+//                        System.out.println("INTMR: " + result);
                     }
                 }
-                System.out.println("RES: " + result);
+//                System.out.println("RES: " + result);
                 return Integer.toString(result);
             }
         }
