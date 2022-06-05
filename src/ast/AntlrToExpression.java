@@ -103,30 +103,16 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
     }
 
     public Expression visitAdditiveExpression(CParser.AdditiveExpressionContext ctx){
-
-//        if(ctx.getChildCount() > 1){
-//            Expression left = visit(ctx.getChild(0));
-//            Expression right = visit(ctx.getChild(1));
-//            return new AdditiveExpression(left, right);
-//        }
-//        else {
-//            Expression straight = visit(ctx.getChild(0));
-//            return new AdditiveExpression(straight);
-//        }
-
         ArrayList<Expression> exprs = new ArrayList<>();
         ArrayList<String> operators = new ArrayList<>();
-
         for(int i = 0; i < ctx.getChildCount(); i++){
             if(ctx.getChild(i) instanceof CParser.MultiplicativeExpressionContext){
                 exprs.add(visit(ctx.getChild(i)));
             }
             else {
                 operators.add(ctx.getChild(i).getText());
-//                System.out.println(ctx.getChild(i).getText());
             }
         }
-
         return new AdditiveExpression(exprs, operators);
     }
 

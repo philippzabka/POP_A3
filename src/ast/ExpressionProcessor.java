@@ -64,8 +64,8 @@ public class ExpressionProcessor {
                 System.out.println(symbolTable);
             }
             else {
-//                getEvaluationResult(((SelectionStatement) e).elseExpr);
-//                System.out.println(symbolTable);
+                getEvaluationResult(((SelectionStatement) e).elseExpr);
+                System.out.println(symbolTable);
             }
             return "";
         }
@@ -118,35 +118,66 @@ public class ExpressionProcessor {
             }
         }
         if(e instanceof AdditiveExpression){
-//            if(((AdditiveExpression) e).left == null || ((AdditiveExpression) e).right == null){
-//                return getEvaluationResult(((AdditiveExpression) e).straight);
-//            }
-//            else {
-//                getEvaluationResult(((AdditiveExpression) e).left);
-//                getEvaluationResult(((AdditiveExpression) e).right);
-//            }
-
             if(((AdditiveExpression) e).expressions.size() == 1){
                 return getEvaluationResult(((AdditiveExpression) e).expressions.get(0));
             }
             else {
-                System.out.println(((AdditiveExpression) e).expressions.size());
-                Stack<String> varStack = new Stack<>();
-                Stack<String> opStack = new Stack<>();
+//                System.out.println("SIZE: "+((AdditiveExpression) e).expressions.size());
+//                Stack<String> varStack = new Stack<>();
+//                Stack<String> opStack = new Stack<>();
+                ArrayList<String> vars = new ArrayList<>();
                 for(int i = 0; i < ((AdditiveExpression) e).expressions.size(); i++){
-                    varStack.push(getEvaluationResult(((AdditiveExpression) e).expressions.get(i)));
+                    vars.add(getEvaluationResult(((AdditiveExpression) e).expressions.get(i)));
                 }
 
-                ((AdditiveExpression) e).operators.forEach(opStack::push);
-                System.out.println("NUMS: " + varStack + " OPS: " + ((AdditiveExpression) e).operators);
+//                Collections.reverse(((AdditiveExpression) e).operators);
+//                ((AdditiveExpression) e).operators.forEach(opStack::push);
+                System.out.println("NUMS: " + vars + " OPS: " + ((AdditiveExpression) e).operators);
 
-                int left = 0;
-                int right = 0;
-//                if()
-//                int left = symbolTable.get(numS)
-//                int result = getAdditiveResult(numStack.pop(), numStack.pop(), opStack.pop())
-
-
+                int result = 0;
+                for(String op: ((AdditiveExpression) e).operators){
+                    for(int i = 0; i < vars.size() - 1; i++){
+                        if(i == 0) {
+                            if (symbolTable.containsKey(vars.get(i)) && symbolTable.containsKey(vars.get(i + 1))) {
+                                int left = symbolTable.get(vars.get(i));
+                                int right = symbolTable.get(vars.get(i + 1));
+                                System.out.println("INTM: " + left + " " + right);
+                                result += getAdditiveResult(left, right, op);
+                                System.out.println("INTMR: " + result);
+                            } else if (symbolTable.containsKey(vars.get(i)) && !symbolTable.containsKey(vars.get(i + 1))) {
+                                int left = symbolTable.get(vars.get(i));
+                                int right = Integer.parseInt(vars.get(i + 1));
+                                System.out.println("INTM: " + left + " " + right);
+                                result += getAdditiveResult(left, right, op);
+                                System.out.println("INTMR: " + result);
+                            } else if (!symbolTable.containsKey(vars.get(i)) && symbolTable.containsKey(vars.get(i + 1))) {
+                                int left = Integer.parseInt(vars.get(i));
+                                int right = symbolTable.get(vars.get(i + 1));
+                                System.out.println("INTM: " + left + " " + right);
+                                result += getAdditiveResult(left, right, op);
+                                System.out.println("INTMR: " + result);
+                            } else {
+                                int left = Integer.parseInt(vars.get(i));
+                                int right = Integer.parseInt(vars.get(i + 1));
+                                System.out.println("INTM: " + left + " " + right);
+                                result += getAdditiveResult(left, right, op);
+                                System.out.println("INTMR: " + result);
+                            }
+                        }
+                        else {
+                            if(symbolTable.containsKey(vars.get(i+1))){
+                                int right = symbolTable.get(vars.get(i+1));
+                                result += getAdditiveResult(result, right, op);
+                            }
+                            else {
+                                int right = Integer.parseInt(vars.get(i+1));
+                                result += getAdditiveResult(result, right, op);
+                            }
+                        }
+                    }
+                }
+                System.out.println("RES: " + result);
+                return Integer.toString(result);
             }
         }
         if(e instanceof PrimaryExpression){
@@ -154,7 +185,7 @@ public class ExpressionProcessor {
                 return ((PrimaryExpression) e).value;
             }
             else {
-                getEvaluationResult(((PrimaryExpression) e).expr);
+                return getEvaluationResult(((PrimaryExpression) e).expr);
             }
         }
         if(e instanceof Declaration){
