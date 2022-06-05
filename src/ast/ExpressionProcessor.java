@@ -1,9 +1,6 @@
 package ast;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ExpressionProcessor {
 
@@ -33,41 +30,165 @@ public class ExpressionProcessor {
         return evaluations;
     }
 
-    private int getEvaluationResult(Expression e){
-        System.out.println(e.getClass());
+    private String getEvaluationResult(Expression e){
+//        System.out.println(e.getClass());
+//        String resultLeft = "";
+//        String resultRight = "";
         if(e instanceof FunctionDefinition){
             getEvaluationResult(((FunctionDefinition) e).exprBody);
-            return 0;
+            return "";
         }
         if(e instanceof CompoundStatement){
             getEvaluationResult(((CompoundStatement) e).exprMiddle);
-            return 0;
+            return "";
         }
         if(e instanceof BlockItemList){
             for(int i = 0; i < ((BlockItemList) e).expressions.size(); i++){
                 getEvaluationResult(((BlockItemList) e).expressions.get(i));
             }
+            return "";
+        }
+        if(e instanceof DeclaratorList){
+            for(int i = 0; i < ((DeclaratorList) e).expressions.size(); i++){
+                getEvaluationResult(((DeclaratorList) e).expressions.get(i));
+            }
+            return "";
+        }
+        if(e instanceof ExpressionStatement){
+            getEvaluationResult(((ExpressionStatement) e).expr);
         }
         if(e instanceof SelectionStatement){
-            getEvaluationResult(((SelectionStatement) e).ifClauseExpr);
+            boolean result = Boolean.parseBoolean(getEvaluationResult(((SelectionStatement) e).ifClauseExpr));
+            if(result){
+                getEvaluationResult(((SelectionStatement) e).ifExpr);
+                System.out.println(symbolTable);
+            }
+            else {
+//                getEvaluationResult(((SelectionStatement) e).elseExpr);
+//                System.out.println(symbolTable);
+            }
+            return "";
         }
         if(e instanceof AssignmentExpression){
-//            getEvaluationResult(((AssignmentExpression) e).left);
-            getEvaluationResult(((AssignmentExpression) e).right);
-//            System.out.println(((AssignmentExpression) e).operator);
+            if(((AssignmentExpression) e).left == null){
+                return getEvaluationResult(((AssignmentExpression) e).right);
+            }
+            else {
+                String resultLeft = getEvaluationResult(((AssignmentExpression) e).left);
+                String resultRight = getEvaluationResult(((AssignmentExpression) e).right);
+
+                if(symbolTable.containsKey(resultLeft)){
+                    symbolTable.put(resultLeft, Integer.parseInt(resultRight));
+                }
+            }
         }
         if(e instanceof RelationalExpression){
-            getEvaluationResult(((RelationalExpression) e).leftSide);
-            getEvaluationResult(((RelationalExpression) e).rightSide);
-            System.out.println(((RelationalExpression) e).operator);
+            if(((RelationalExpression) e).leftSide == null){
+                return getEvaluationResult(((RelationalExpression) e).rightSide);
+            }
+            else {
+                String leftSide = getEvaluationResult(((RelationalExpression) e).leftSide);
+                String rightSide = getEvaluationResult(((RelationalExpression) e).rightSide);
+                String operator = ((RelationalExpression) e).operator;
+
+                int valLeft = symbolTable.get(leftSide);
+                int valRight = symbolTable.get(rightSide);
+                switch(operator) {
+                    case "<":
+                        if(valLeft < valRight) return "true";
+                        else return "false";
+                    case ">":
+                        if(valLeft > valRight) return "true";
+                        else return "false";
+                    case "<=":
+                        if(valLeft <= valRight) return "true";
+                        else return "false";
+                    case ">=":
+                        if(valLeft >= valRight) return "true";
+                        else return "false";
+                    case "==":
+                        if(valLeft == valRight) return "true";
+                        else return "false";
+                    case "!=":
+                        if(valLeft != valRight) return "true";
+                        else return "false";
+                    default:
+//                        return "";
+                }
+            }
         }
         if(e instanceof AdditiveExpression){
-            System.out.println(((AdditiveExpression) e).expressions.size());
-            getEvaluationResult(((AdditiveExpression) e).expressions.get(0));
+//            if(((AdditiveExpression) e).left == null || ((AdditiveExpression) e).right == null){
+//                return getEvaluationResult(((AdditiveExpression) e).straight);
+//            }
+//            else {
+//                getEvaluationResult(((AdditiveExpression) e).left);
+//                getEvaluationResult(((AdditiveExpression) e).right);
+//            }
+
+            if(((AdditiveExpression) e).expressions.size() == 1){
+                return getEvaluationResult(((AdditiveExpression) e).expressions.get(0));
+            }
+            else {
+                System.out.println(((AdditiveExpression) e).expressions.size());
+                Stack<String> varStack = new Stack<>();
+                Stack<String> opStack = new Stack<>();
+                for(int i = 0; i < ((AdditiveExpression) e).expressions.size(); i++){
+                    varStack.push(getEvaluationResult(((AdditiveExpression) e).expressions.get(i)));
+                }
+
+                ((AdditiveExpression) e).operators.forEach(opStack::push);
+                System.out.println("NUMS: " + varStack + " OPS: " + ((AdditiveExpression) e).operators);
+
+                int left = 0;
+                int right = 0;
+//                if()
+//                int left = symbolTable.get(numS)
+//                int result = getAdditiveResult(numStack.pop(), numStack.pop(), opStack.pop())
+
+
+            }
         }
         if(e instanceof PrimaryExpression){
-            System.out.println(((PrimaryExpression) e).value);
+            if(((PrimaryExpression) e).expr == null){
+                return ((PrimaryExpression) e).value;
+            }
+            else {
+                getEvaluationResult(((PrimaryExpression) e).expr);
+            }
         }
-        return 0;
+        if(e instanceof Declaration){
+            if(((Declaration) e).right == null){
+                getEvaluationResult(((Declaration) e).left);
+            }
+            else {
+                getEvaluationResult(((Declaration) e).left);
+                getEvaluationResult(((Declaration) e).right);
+            }
+            return "";
+        }
+        if(e instanceof DirectDeclarator){
+            symbolTable.put(((DirectDeclarator) e).name, null);
+            return ((DirectDeclarator) e).name;
+        }
+        if(e instanceof DeclarationSpecifiers){
+            for(int i = 0; i < ((DeclarationSpecifiers) e).specifiers.size(); i++){
+                System.out.println(((DeclarationSpecifiers) e).specifiers.get(i));
+            }
+            return "";
+        }
+
+        System.out.println(symbolTable);
+        return "";
+    }
+
+    private int getAdditiveResult(int left, int right, String op){
+        return switch (op) {
+            case "+" -> left + right;
+            case "-" -> left - right;
+            default -> 0;
+        };
     }
 }
+
+

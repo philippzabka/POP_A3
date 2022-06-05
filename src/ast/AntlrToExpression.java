@@ -3,6 +3,7 @@ package ast;
 import antlr.CBaseVisitor;
 import antlr.CParser;
 
+import java.security.spec.ECField;
 import java.util.ArrayList;
 
 public class AntlrToExpression extends CBaseVisitor<Expression> {
@@ -29,11 +30,24 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
 
     public Expression visitBlockItemList(CParser.BlockItemListContext ctx){
 //        System.out.println(ctx.getChildCount());
-        ArrayList<Expression> items = new ArrayList<>();
+        ArrayList<Expression> expressions = new ArrayList<>();
         for(int i = 0; i < ctx.getChildCount(); i++){
-            items.add(visit(ctx.getChild(i)));
+            expressions.add(visit(ctx.getChild(i)));
         }
-        return new BlockItemList(items);
+        return new BlockItemList(expressions);
+    }
+
+    public Expression visitInitDeclaratorList(CParser.InitDeclaratorListContext ctx){
+        ArrayList<Expression> expressions = new ArrayList<>();
+        for(int i = 0; i < ctx.getChildCount(); i++){
+            expressions.add(visit(ctx.getChild(i)));
+        }
+        return new DeclaratorList(expressions);
+    }
+
+    public Expression visitExpressionStatement(CParser.ExpressionStatementContext ctx){
+        Expression expr = visit(ctx.getChild(0));
+        return new ExpressionStatement(expr);
     }
 
     public Expression visitDeclaration(CParser.DeclarationContext ctx){
@@ -89,6 +103,17 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
     }
 
     public Expression visitAdditiveExpression(CParser.AdditiveExpressionContext ctx){
+
+//        if(ctx.getChildCount() > 1){
+//            Expression left = visit(ctx.getChild(0));
+//            Expression right = visit(ctx.getChild(1));
+//            return new AdditiveExpression(left, right);
+//        }
+//        else {
+//            Expression straight = visit(ctx.getChild(0));
+//            return new AdditiveExpression(straight);
+//        }
+
         ArrayList<Expression> exprs = new ArrayList<>();
         ArrayList<String> operators = new ArrayList<>();
 
