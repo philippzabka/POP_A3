@@ -35,12 +35,10 @@ public class ExpressionProcessor {
 //        String resultLeft = "";
 //        String resultRight = "";
         if(e instanceof FunctionDefinition){
-            getEvaluationResult(((FunctionDefinition) e).exprBody);
-            return "";
+            return getEvaluationResult(((FunctionDefinition) e).exprBody);
         }
         if(e instanceof CompoundStatement){
-            getEvaluationResult(((CompoundStatement) e).exprMiddle);
-            return "";
+            return getEvaluationResult(((CompoundStatement) e).exprMiddle);
         }
         if(e instanceof BlockItemList){
             for(int i = 0; i < ((BlockItemList) e).expressions.size(); i++){
@@ -55,7 +53,7 @@ public class ExpressionProcessor {
             return "";
         }
         if(e instanceof ExpressionStatement){
-            getEvaluationResult(((ExpressionStatement) e).expr);
+            return getEvaluationResult(((ExpressionStatement) e).expr);
         }
         if(e instanceof SelectionStatement){
             boolean result = Boolean.parseBoolean(getEvaluationResult(((SelectionStatement) e).ifClauseExpr));
@@ -69,16 +67,64 @@ public class ExpressionProcessor {
             }
             return "";
         }
+        if(e instanceof IterationStatement){
+            symbolTable.put("start", 0);
+            boolean result = Boolean.parseBoolean(getEvaluationResult(((IterationStatement) e).forConditionExpr));
+            symbolTable.put("start", 1);
+            while(result){
+                getEvaluationResult(((IterationStatement) e).statementExpr);
+                result = Boolean.parseBoolean(getEvaluationResult(((IterationStatement) e).forConditionExpr));
+            }
+        }
+        if(e instanceof ForCondition){
+            if(symbolTable.get("start") == 0) getEvaluationResult(((ForCondition) e).left);
+            if(symbolTable.get("start") == 1) getEvaluationResult(((ForCondition) e).right);
+            return getEvaluationResult(((ForCondition) e).middle);
+        }
         if(e instanceof AssignmentExpression){
             if(((AssignmentExpression) e).left == null){
                 return getEvaluationResult(((AssignmentExpression) e).right);
             }
             else {
                 String resultLeft = getEvaluationResult(((AssignmentExpression) e).left);
+                String operator = ((AssignmentExpression) e).operator;
                 String resultRight = getEvaluationResult(((AssignmentExpression) e).right);
 
                 if(symbolTable.containsKey(resultLeft)){
-                    symbolTable.put(resultLeft, Integer.parseInt(resultRight));
+                    switch (operator){
+                        case "=":
+                            if(symbolTable.containsKey(resultRight)){
+                                int result = symbolTable.get(resultRight);
+                                symbolTable.put(resultLeft, result);
+                            }
+                            else {
+                                symbolTable.put(resultLeft, Integer.parseInt(resultRight));
+                            }
+                            break;
+                        case "+=": {
+                            int result = symbolTable.get(resultLeft);
+                            if (symbolTable.containsKey(resultRight)) {
+                                int result2 = symbolTable.get(resultRight);
+                                result = result + result2;
+                            } else {
+                                result = result + Integer.parseInt(resultRight);
+                            }
+                            symbolTable.put(resultLeft, result);
+                            break;
+                        }
+                        case "-=": {
+                            int result = symbolTable.get(resultLeft);
+                            if (symbolTable.containsKey(resultRight)) {
+                                int result2 = symbolTable.get(resultRight);
+                                result = result - result2;
+                            } else {
+                                result = result - Integer.parseInt(resultRight);
+                            }
+                            symbolTable.put(resultLeft, result);
+                            break;
+                        }
+                    }
+
                 }
             }
         }
@@ -166,6 +212,7 @@ public class ExpressionProcessor {
         }
         if(e instanceof PrimaryExpression){
             if(((PrimaryExpression) e).expr == null){
+//                System.out.println(((PrimaryExpression) e).value);
                 return ((PrimaryExpression) e).value;
             }
             else {
@@ -174,7 +221,7 @@ public class ExpressionProcessor {
         }
         if(e instanceof Declaration){
             if(((Declaration) e).right == null){
-                getEvaluationResult(((Declaration) e).left);
+                return getEvaluationResult(((Declaration) e).left);
             }
             else {
                 getEvaluationResult(((Declaration) e).left);

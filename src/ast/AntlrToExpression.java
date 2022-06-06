@@ -118,9 +118,10 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
 
     public Expression visitRelationalExpression(CParser.RelationalExpressionContext ctx){
         if(ctx.getChildCount() > 1) {
+            System.out.println("CHILD" + ctx.getChildCount());
             Expression leftSide = visit(ctx.getChild(0));
             String operator = ctx.getChild(1).getText();
-//            System.out.println(operator);
+            System.out.println(operator);
             Expression rightSide = visit(ctx.getChild(2));
             return new RelationalExpression(leftSide, operator, rightSide);
         }
@@ -173,5 +174,12 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
         Expression statementExpr = visit(ctx.getChild(4));
 
         return new IterationStatement(forToken, bracketLeft, forConditionExpr, bracketRight, statementExpr);
+    }
+
+    public Expression visitForCondition(CParser.ForConditionContext ctx){
+        Expression left = visit(ctx.getChild(0));
+        Expression middle = visit(ctx.getChild(2));
+        Expression right = visit(ctx.getChild(4));
+        return new ForCondition(left, middle, right);
     }
 }
