@@ -2,8 +2,6 @@ package ast;
 
 import antlr.CBaseVisitor;
 import antlr.CParser;
-
-import java.security.spec.ECField;
 import java.util.ArrayList;
 
 public class AntlrToExpression extends CBaseVisitor<Expression> {
