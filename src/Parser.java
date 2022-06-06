@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
 
-public class Main {
+public class Parser {
     public static void main(String[] args) {
 
         if (args.length != 1) {
@@ -23,10 +23,8 @@ public class Main {
             AntlrToCompUnit visitor = new AntlrToCompUnit();
             CompilationUnit startingRule = visitor.visit(ast);
             ExpressionProcessor ep = new ExpressionProcessor(startingRule.expressions);
-
-            for(String evaluation: ep.getEvaluationResults()) {
-                System.out.println(evaluation);
-            }
+            ep.initEvaluation();
+            ep.symbolTable.forEach((k, v) -> System.out.println((k + " = " + v)));
         }
     }
 

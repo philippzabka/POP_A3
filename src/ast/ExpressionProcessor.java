@@ -4,7 +4,7 @@ import java.util.*;
 
 public class ExpressionProcessor {
 
-    private List<Expression> exprList;
+    private final List<Expression> exprList;
     public Map<String, Integer> symbolTable;
 
     public ExpressionProcessor(List<Expression> list) {
@@ -12,28 +12,13 @@ public class ExpressionProcessor {
         symbolTable = new HashMap<>();
     }
 
-    public List<String> getEvaluationResults() {
-        List<String> evaluations = new ArrayList<>();
-
+    public void initEvaluation() {
         for(Expression e: exprList){
             getEvaluationResult(e);
-//            if(e instanceof VariableDeclaration) {
-//                VariableDeclaration decl = (VariableDeclaration) e;
-//                values.put(decl.id, decl.value);
-//            }
-//            else { // if instanceof Nis Number, Variable, Addition, Subtraction
-//                String input = e.toString();
-//                int result = getEvalResult(e);
-//                evaluations.add(input + " is " + result);
-//            }
         }
-        return evaluations;
     }
 
     private String getEvaluationResult(Expression e){
-//        System.out.println(e.getClass());
-//        String resultLeft = "";
-//        String resultRight = "";
         if(e instanceof FunctionDefinition){
             return getEvaluationResult(((FunctionDefinition) e).exprBody);
         }
@@ -44,28 +29,19 @@ public class ExpressionProcessor {
             for(int i = 0; i < ((BlockItemList) e).expressions.size(); i++){
                 getEvaluationResult(((BlockItemList) e).expressions.get(i));
             }
-            return "";
         }
         if(e instanceof DeclaratorList){
             for(int i = 0; i < ((DeclaratorList) e).expressions.size(); i++){
                 getEvaluationResult(((DeclaratorList) e).expressions.get(i));
             }
-            return "";
         }
         if(e instanceof ExpressionStatement){
             return getEvaluationResult(((ExpressionStatement) e).expr);
         }
         if(e instanceof SelectionStatement){
             boolean result = Boolean.parseBoolean(getEvaluationResult(((SelectionStatement) e).ifClauseExpr));
-            if(result){
-                getEvaluationResult(((SelectionStatement) e).ifExpr);
-                System.out.println(symbolTable);
-            }
-            else {
-                getEvaluationResult(((SelectionStatement) e).elseExpr);
-                System.out.println(symbolTable);
-            }
-            return "";
+            if(result) getEvaluationResult(((SelectionStatement) e).ifExpr);
+            else getEvaluationResult(((SelectionStatement) e).elseExpr);
         }
         if(e instanceof IterationStatement){
             symbolTable.put("start", 0);
@@ -158,8 +134,6 @@ public class ExpressionProcessor {
                     case "!=":
                         if(valLeft != valRight) return "true";
                         else return "false";
-                    default:
-//                        return "";
                 }
             }
         }
@@ -176,43 +150,30 @@ public class ExpressionProcessor {
                 Collections.reverse(vars);
                 Stack<String> varsStack = new Stack<>();
                 vars.forEach(varsStack::push);
-//                System.out.println("STACK"+varsStack);
-//                System.out.println("NUMS: " + vars + " OPS: " + ((AdditiveExpression) e).operators);
 
                 int result = 0;
                 for(String op: ((AdditiveExpression) e).operators){
                     String left = varsStack.pop();
                     String right = varsStack.pop();
-//                    System.out.println("POP:" + left +" "+ right);
                     if (symbolTable.containsKey(left) && symbolTable.containsKey(right)) {
-//                        System.out.println("INTM: " + left + " " + right);
                         result = getAdditiveResult(symbolTable.get(left), symbolTable.get(right), op);
                         varsStack.push(Integer.toString(result));
-//                        System.out.println("INTMR: " + result);
                     } else if (symbolTable.containsKey(left) && !symbolTable.containsKey(right)) {
-//                        System.out.println("INTM: " + left + " " + right);
                         result = getAdditiveResult(symbolTable.get(left), Integer.parseInt(right), op);
                         varsStack.push(Integer.toString(result));
-//                        System.out.println("INTMR: " + result);
                     } else if (!symbolTable.containsKey(left) && symbolTable.containsKey(right)) {
-//                        System.out.println("INTM: " + left + " " + right);
                         result = getAdditiveResult(Integer.parseInt(left), symbolTable.get(right), op);
                         varsStack.push(Integer.toString(result));
-//                        System.out.println("INTMR: " + result);
                     } else {
-//                        System.out.println("INTM: " + left + " " + right);
                         result = getAdditiveResult(Integer.parseInt(left), Integer.parseInt(right), op);
                         varsStack.push(Integer.toString(result));
-//                        System.out.println("INTMR: " + result);
                     }
                 }
-//                System.out.println("RES: " + result);
                 return Integer.toString(result);
             }
         }
         if(e instanceof PrimaryExpression){
             if(((PrimaryExpression) e).expr == null){
-//                System.out.println(((PrimaryExpression) e).value);
                 return ((PrimaryExpression) e).value;
             }
             else {
@@ -227,20 +188,16 @@ public class ExpressionProcessor {
                 getEvaluationResult(((Declaration) e).left);
                 getEvaluationResult(((Declaration) e).right);
             }
-            return "";
         }
         if(e instanceof DirectDeclarator){
             symbolTable.put(((DirectDeclarator) e).name, null);
             return ((DirectDeclarator) e).name;
         }
-        if(e instanceof DeclarationSpecifiers){
-            for(int i = 0; i < ((DeclarationSpecifiers) e).specifiers.size(); i++){
-                System.out.println(((DeclarationSpecifiers) e).specifiers.get(i));
-            }
-            return "";
-        }
-
-        System.out.println(symbolTable);
+//        if(e instanceof DeclarationSpecifiers){
+//            for(int i = 0; i < ((DeclarationSpecifiers) e).specifiers.size(); i++){
+//                System.out.println(((DeclarationSpecifiers) e).specifiers.get(i));
+//            }
+//        }
         return "";
     }
 
