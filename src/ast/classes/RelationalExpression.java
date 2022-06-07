@@ -1,4 +1,4 @@
-package ast;
+package ast.classes;
 
 public class RelationalExpression extends Expression{
 

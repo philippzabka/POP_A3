@@ -1,8 +1,10 @@
+package main;
+
 import antlr.CLexer;
-import ast.AntlrToCompUnit;
+import ast.build.AntlrToCompUnit;
 import antlr.CParser;
-import ast.CompilationUnit;
-import ast.ExpressionProcessor;
+import ast.classes.CompilationUnit;
+import ast.process.ExpressionProcessor;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;

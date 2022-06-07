@@ -1,4 +1,6 @@
-package ast;
+package ast.process;
+
+import ast.classes.*;
 
 import java.util.*;
 

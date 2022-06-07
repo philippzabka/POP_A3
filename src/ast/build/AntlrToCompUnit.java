@@ -1,7 +1,8 @@
-package ast;
+package ast.build;
 
 import antlr.CBaseVisitor;
 import antlr.CParser;
+import ast.classes.CompilationUnit;
 
 public class AntlrToCompUnit extends CBaseVisitor<CompilationUnit> {
 

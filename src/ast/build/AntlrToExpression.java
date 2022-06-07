@@ -1,7 +1,9 @@
-package ast;
+package ast.build;
 
 import antlr.CBaseVisitor;
 import antlr.CParser;
+import ast.classes.*;
+
 import java.util.ArrayList;
 
 public class AntlrToExpression extends CBaseVisitor<Expression> {
@@ -17,10 +19,8 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
     }
 
     public Expression visitCompoundStatement(CParser.CompoundStatementContext ctx){
-        String bracketLeft = ctx.getChild(0).getText();
         Expression exprMiddle = visit(ctx.getChild(1));
-        String bracketRight = ctx.getChild(2).getText();
-        return new CompoundStatement(bracketLeft, exprMiddle, bracketRight);
+        return new CompoundStatement(exprMiddle);
     }
 
     public Expression visitBlockItemList(CParser.BlockItemListContext ctx){
@@ -65,16 +65,8 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
     }
 
     public Expression visitDirectDeclarator(CParser.DirectDeclaratorContext ctx){
-        if(ctx.getChildCount() > 1){
-            String name = ctx.getChild(0).getText();
-            String bracketLeft = ctx.getChild(1).getText();
-            String bracketRight = ctx.getChild(2).getText();
-            return new DirectDeclarator(name, bracketLeft, bracketRight);
-        }
-        else {
-            String name = ctx.getChild(0).getText();
-            return new DirectDeclarator(name);
-        }
+        String name = ctx.getChild(0).getText();
+        return new DirectDeclarator(name);
     }
 
     public Expression visitAssignmentExpression(CParser.AssignmentExpressionContext ctx){
@@ -119,21 +111,17 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
 
     public Expression visitSelectionStatement(CParser.SelectionStatementContext ctx){
         String ifToken = ctx.getChild(0).getText();
-        String bracketLeft = ctx.getChild(1).getText();
         Expression ifClauseExpr = visit(ctx.getChild(2));
-        String bracketRight = ctx.getChild(3).getText();
         Expression ifExpr = visit(ctx.getChild(4));
         String elseToken = ctx.getChild(5).getText();
         Expression elseExpr = visit(ctx.getChild(6));
-        return new SelectionStatement(ifToken, bracketLeft, ifClauseExpr, bracketRight, ifExpr, elseToken, elseExpr);
+        return new SelectionStatement(ifToken, ifClauseExpr, ifExpr, elseToken, elseExpr);
     }
 
     public Expression visitPrimaryExpression(CParser.PrimaryExpressionContext ctx){
         if (ctx.getChildCount() > 1){
-            String bracketLeft = ctx.getChild(0).getText();
             Expression expr = visit(ctx.getChild(1));
-            String bracketsRight = ctx.getChild(2).getText();
-            return new PrimaryExpression(bracketLeft, expr, bracketsRight);
+            return new PrimaryExpression(expr);
         }
         else {
             String value = ctx.getChild(0).getText();
@@ -143,11 +131,9 @@ public class AntlrToExpression extends CBaseVisitor<Expression> {
 
     public Expression visitIterationStatement(CParser.IterationStatementContext ctx){
         String forToken = ctx.getChild(0).getText();
-        String bracketLeft = ctx.getChild(1).getText();
         Expression forConditionExpr = visit(ctx.getChild(2));
-        String bracketRight = ctx.getChild(3).getText();
         Expression statementExpr = visit(ctx.getChild(4));
-        return new IterationStatement(forToken, bracketLeft, forConditionExpr, bracketRight, statementExpr);
+        return new IterationStatement(forToken, forConditionExpr, statementExpr);
     }
 
     public Expression visitForCondition(CParser.ForConditionContext ctx){

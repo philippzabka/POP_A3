@@ -1,10 +1,6 @@
-package ast;
-
-import java.util.ArrayList;
-import java.util.List;
+package ast.classes;
 
 public class Declaration extends Expression {
-
     public Expression left;
     public Expression right;
 
