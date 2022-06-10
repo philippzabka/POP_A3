@@ -8,10 +8,11 @@ public class ExpressionProcessor {
 
     private final List<Expression> exprList;
     public Map<String, Integer> symbolTable;
-
+    public List<String> riscV;
     public ExpressionProcessor(List<Expression> list) {
         this.exprList = list;
         symbolTable = new HashMap<>();
+        riscV = new ArrayList<>();
     }
 
     public void initEvaluation() {
