@@ -127,7 +127,6 @@ public class ExpressionProcessorToRiscv {
                                     if (entry.getValue() == null) {
                                         registerTable.put(entry.getKey(), resultLeft);
                                         registerStack.push(entry.getKey());
-                                        // Create risc instruction
                                         if (token.equals("")) {
                                             String register = "";
                                             for (Map.Entry<String, String> entry2 : registerTable.entrySet()) {
