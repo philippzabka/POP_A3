@@ -1,18 +1,15 @@
 package ast.process;
 
 import ast.classes.*;
-
 import java.util.*;
 
 public class ExpressionProcessor {
 
     private final List<Expression> exprList;
     public Map<String, Integer> symbolTable;
-    public List<String> riscV;
     public ExpressionProcessor(List<Expression> list) {
         this.exprList = list;
         symbolTable = new HashMap<>();
-        riscV = new ArrayList<>();
     }
 
     public void initEvaluation() {
@@ -117,6 +114,7 @@ public class ExpressionProcessor {
 
                 int valLeft = symbolTable.get(leftSide);
                 int valRight = symbolTable.get(rightSide);
+
                 switch(operator) {
                     case "<":
                         if(valLeft < valRight) return "true";

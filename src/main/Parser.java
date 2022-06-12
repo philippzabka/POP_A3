@@ -5,6 +5,7 @@ import ast.build.AntlrToCompUnit;
 import antlr.CParser;
 import ast.classes.CompilationUnit;
 import ast.process.ExpressionProcessor;
+import ast.process.ExpressionProcessorToRiscV;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -24,7 +25,11 @@ public class Parser {
             ParseTree ast = parser.compilationUnit();
             AntlrToCompUnit visitor = new AntlrToCompUnit();
             CompilationUnit startingRule = visitor.visit(ast);
-            ExpressionProcessor ep = new ExpressionProcessor(startingRule.expressions);
+//            ExpressionProcessor ep = new ExpressionProcessor(startingRule.expressions);
+//            ep.initEvaluation();
+//            ep.symbolTable.forEach((k, v) -> System.out.println((k + " = " + v)));
+
+            ExpressionProcessorToRiscV ep = new ExpressionProcessorToRiscV(startingRule.expressions);
             ep.initEvaluation();
             ep.symbolTable.forEach((k, v) -> System.out.println((k + " = " + v)));
         }

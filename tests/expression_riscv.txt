@@ -4,7 +4,7 @@
   ADDI x4, x0, 4 # d=4
   BLT x1, x2, expr # if a<b -> expr
   ADDI x1, x0, 2 # res=2
-  JAL x1, done # jump to done with return val 0
+  JAL x0, done # jump to done with return val 0
 
 expr:
   SUB t0, x4, x3 # d-c=e
