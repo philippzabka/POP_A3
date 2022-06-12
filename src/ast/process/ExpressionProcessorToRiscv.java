@@ -4,7 +4,7 @@ import ast.classes.*;
 
 import java.util.*;
 
-public class ExpressionProcessorToRiscV {
+public class ExpressionProcessorToRiscv {
 
     private final List<Expression> exprList;
     public Map<String, Integer> symbolTable;
@@ -13,7 +13,7 @@ public class ExpressionProcessorToRiscV {
     public List<String> instructions;
     private int instruction_counter;
     private int branch_instruction_counter;
-    public ExpressionProcessorToRiscV(List<Expression> list) {
+    public ExpressionProcessorToRiscv(List<Expression> list) {
         this.exprList = list;
         symbolTable = new HashMap<>();
         registerTable = new HashMap<>();
@@ -47,7 +47,9 @@ public class ExpressionProcessorToRiscV {
 
     private String getEvaluationResult(Expression e, String token){
         if(e instanceof FunctionDefinition){
-            return getEvaluationResult(((FunctionDefinition) e).exprBody, token);
+            getEvaluationResult(((FunctionDefinition) e).exprBody, token);
+            instructions.add("ret");
+            instruction_counter++;
         }
         if(e instanceof CompoundStatement){
             return getEvaluationResult(((CompoundStatement) e).exprMiddle, token);
@@ -72,23 +74,27 @@ public class ExpressionProcessorToRiscV {
             getEvaluationResult(((SelectionStatement) e).elseExpr, "else");
 
             // CODEGEN BEGIN
-            instructions.add(branch_instruction_counter++, "JAL x0,done");
-            instructions.add(branch_instruction_counter++, "expr:");
+            instructions.add(branch_instruction_counter++, "JAL x0,DONE");
+            instructions.add(branch_instruction_counter++, "IF:");
 
             instructions.remove(instructions.size()-1);
-            instructions.add("done:");
-            instruction_counter++;
-            instructions.add("ret");
+            instructions.add("DONE:");
             instruction_counter++;
             // CODEGEN END
         }
         if(e instanceof IterationStatement){
             symbolTable.put("start", 0);
-            boolean result = Boolean.parseBoolean(getEvaluationResult(((IterationStatement) e).forConditionExpr, token));
+            getEvaluationResult(((IterationStatement) e).forConditionExpr, token);
             symbolTable.put("start", 1);
-            while(result){
+
+            instructions.add("LOOP:");
+            instruction_counter++;
+
+            boolean oneTime = true;
+            while(oneTime){
                 getEvaluationResult(((IterationStatement) e).statementExpr, token);
-                result = Boolean.parseBoolean(getEvaluationResult(((IterationStatement) e).forConditionExpr, token));
+                getEvaluationResult(((IterationStatement) e).forConditionExpr, token);
+                oneTime = false;
             }
         }
         if(e instanceof ForCondition){
@@ -116,24 +122,36 @@ public class ExpressionProcessorToRiscV {
                             }
                             // CODEGEN BEGIN
                             // Get next free register and save reference to symbol table
-                            for(Map.Entry<String,String> entry : registerTable.entrySet()){
-                                if(entry.getValue() == null){
-                                    registerTable.put(entry.getKey(), resultLeft);
-                                    registerStack.push(entry.getKey());
-                                    // Create risc instruction
-                                    if(token.equals("")){
-                                        instructions.add("ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
-                                        instruction_counter++;
+
+                            // If resultLeft is not already in register
+                            if(getRegisterByValue(resultLeft).equals("")){
+                                for (Map.Entry<String, String> entry : registerTable.entrySet()) {
+                                    if (entry.getValue() == null) {
+                                        registerTable.put(entry.getKey(), resultLeft);
+                                        registerStack.push(entry.getKey());
+                                        // Create risc instruction
+                                        if (token.equals("")) {
+                                            String register = "";
+                                            for (Map.Entry<String, String> entry2 : registerTable.entrySet()) {
+                                                if (Objects.equals(entry2.getValue(), resultRight))
+                                                    register = entry2.getKey();
+                                            }
+                                            System.out.println("RES" + resultLeft + " " + resultRight + " " + register);
+                                            if (register.equals(""))
+                                                instructions.add("ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
+                                            else instructions.add("ADD " + entry.getKey() + ",x0," + register);
+                                            System.out.println("ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
+                                            instruction_counter++;
+                                        } else {
+                                            System.out.println("ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
+                                            instructions.add(branch_instruction_counter, "ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
+                                            branch_instruction_counter++;
+                                        }
+                                        break;
                                     }
-                                    else{
-                                        instructions.add(branch_instruction_counter, "ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
-                                        branch_instruction_counter++;
-                                    }
-                                    break;
                                 }
                             }
                             // CODEGEN END
-
                             break;
                         case "+=": {
                             int result = symbolTable.get(resultLeft);
@@ -143,7 +161,16 @@ public class ExpressionProcessorToRiscV {
                             } else {
                                 result = result + Integer.parseInt(resultRight);
                             }
+                            System.out.println("+=" + resultLeft + " " + resultRight);
                             symbolTable.put(resultLeft, result);
+
+                            // CODEGEN BEGIN
+                            String register1 = getRegisterByValue(resultLeft);
+                            String register2 = getRegisterByValue(resultRight);
+                            instructions.add("ADD " +register1 + "," + register1 + "," + register2);
+                            instruction_counter++;
+                            // CODEGEN END
+
                             break;
                         }
                         case "-=": {
@@ -173,12 +200,14 @@ public class ExpressionProcessorToRiscV {
                 int valLeft = symbolTable.get(leftSide);
                 int valRight = symbolTable.get(rightSide);
 
+                String register1 = "";
+                String register2 = "";
                 switch(operator) {
                     case "<":
                         // CODEGEN BEGIN
-                        String register1 = getRegisterByValue(leftSide);
-                        String register2 = getRegisterByValue(rightSide);
-                        instructions.add("BLT " + register1 + "," + register2 + ",expr");
+                        register1 = getRegisterByValue(leftSide);
+                        register2 = getRegisterByValue(rightSide);
+                        instructions.add("BLT " + register1 + "," + register2 + ",IF");
                         instruction_counter++;
                         // CODEGEN END
 
@@ -188,6 +217,11 @@ public class ExpressionProcessorToRiscV {
                         if(valLeft > valRight) return "true";
                         else return "false";
                     case "<=":
+                        register1 = getRegisterByValue(leftSide);
+                        register2 = getRegisterByValue(rightSide);
+                        System.out.println("BGE " + register2 + "," + register1 + ",LOOP");
+                        instructions.add("BGE " + register2 + "," + register1 + ",LOOP");
+                        instruction_counter++;
                         if(valLeft <= valRight) return "true";
                         else return "false";
                     case ">=":
@@ -236,11 +270,11 @@ public class ExpressionProcessorToRiscV {
                     } else if (symbolTable.containsKey(left) && !symbolTable.containsKey(right)) {
                         result = getAdditiveResult(symbolTable.get(left), Integer.parseInt(right), op);
                         varsStack.push(Integer.toString(result));
-
+                        System.out.println();
                         // CODEGEN BEGIN
-                        String register1 = getRegisterByValue(left);
-                        String register2 = getFreeRegister(left+op+right);
-                        instructions.add("ADDI "+register2+","+register1+","+right);
+                        System.out.println("ADD"+ left + " " + right);
+                        String register = getRegisterByValue(left);
+                        instructions.add("ADDI "+register+","+register+","+right);
                         instruction_counter++;
                         // CODEGEN END
 

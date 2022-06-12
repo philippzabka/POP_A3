@@ -1,0 +1,12 @@
+ADDI x8,x0,11
+ADDI x9,x0,0
+ADDI x19,x0,1
+ADD x10,x0,x19
+BGE x8,x10,LOOP
+LOOP:
+ADDI x9,x9,1
+ADDI x19,x19,2
+ADD x10,x10,x19
+BGE x8,x10,LOOP
+ADD x21,x0,x9
+ret

@@ -20,7 +20,6 @@ int main()
      {
        res=2;
      }
-	 
+
    // printf("res=%d\n",res);
 }
-
