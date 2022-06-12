@@ -111,20 +111,19 @@ public class ExpressionProcessorToRiscv {
                 String operator = ((AssignmentExpression) e).operator;
                 String resultRight = getEvaluationResult(((AssignmentExpression) e).right, token);
                 if(symbolTable.containsKey(resultLeft)){
-                    switch (operator){
-                        case "=":
-                            if(symbolTable.containsKey(resultRight)){
+                    switch (operator) {
+                        case "=" -> {
+                            if (symbolTable.containsKey(resultRight)) {
                                 int result = symbolTable.get(resultRight);
                                 symbolTable.put(resultLeft, result);
-                            }
-                            else {
+                            } else {
                                 symbolTable.put(resultLeft, Integer.parseInt(resultRight));
                             }
                             // CODEGEN BEGIN
                             // Get next free register and save reference to symbol table
 
                             // If resultLeft is not already in register
-                            if(getRegisterByValue(resultLeft).equals("")){
+                            if (getRegisterByValue(resultLeft).equals("")) {
                                 for (Map.Entry<String, String> entry : registerTable.entrySet()) {
                                     if (entry.getValue() == null) {
                                         registerTable.put(entry.getKey(), resultLeft);
@@ -151,9 +150,9 @@ public class ExpressionProcessorToRiscv {
                                     }
                                 }
                             }
-                            // CODEGEN END
-                            break;
-                        case "+=": {
+                        }
+                        // CODEGEN END
+                        case "+=" -> {
                             int result = symbolTable.get(resultLeft);
                             if (symbolTable.containsKey(resultRight)) {
                                 int result2 = symbolTable.get(resultRight);
@@ -167,13 +166,11 @@ public class ExpressionProcessorToRiscv {
                             // CODEGEN BEGIN
                             String register1 = getRegisterByValue(resultLeft);
                             String register2 = getRegisterByValue(resultRight);
-                            instructions.add("ADD " +register1 + "," + register1 + "," + register2);
+                            instructions.add("ADD " + register1 + "," + register1 + "," + register2);
                             instruction_counter++;
                             // CODEGEN END
-
-                            break;
                         }
-                        case "-=": {
+                        case "-=" -> {
                             int result = symbolTable.get(resultLeft);
                             if (symbolTable.containsKey(resultRight)) {
                                 int result2 = symbolTable.get(resultRight);
@@ -182,7 +179,6 @@ public class ExpressionProcessorToRiscv {
                                 result = result - Integer.parseInt(resultRight);
                             }
                             symbolTable.put(resultLeft, result);
-                            break;
                         }
                     }
                 }
@@ -200,8 +196,8 @@ public class ExpressionProcessorToRiscv {
                 int valLeft = symbolTable.get(leftSide);
                 int valRight = symbolTable.get(rightSide);
 
-                String register1 = "";
-                String register2 = "";
+                String register1;
+                String register2;
                 switch(operator) {
                     case "<":
                         // CODEGEN BEGIN
