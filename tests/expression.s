@@ -3,6 +3,7 @@ ADDI x9,x0,2
 ADDI x19,x0,3
 ADDI x10,x0,4
 BLT x8,x9,IF
+ADDI x16,x0,2
 JAL x0,DONE
 IF:
 SUB x21,x10,x19

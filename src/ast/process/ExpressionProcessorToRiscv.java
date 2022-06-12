@@ -5,7 +5,6 @@ import ast.classes.*;
 import java.util.*;
 
 public class ExpressionProcessorToRiscv {
-
     private final List<Expression> exprList;
     public Map<String, Integer> symbolTable;
     public Map<String, String> registerTable;
@@ -148,6 +147,12 @@ public class ExpressionProcessorToRiscv {
                                         }
                                         break;
                                     }
+                                }
+                            }
+                            else{
+                                if(token.equals("else")){
+                                    String register = getFreeRegister(resultRight);
+                                    instructions.add(branch_instruction_counter++, "ADDI " + register + ",x0," + resultRight);
                                 }
                             }
                         }

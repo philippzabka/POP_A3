@@ -2,9 +2,7 @@ package ast.process;
 
 import ast.classes.*;
 import java.util.*;
-
 public class ExpressionProcessor {
-
     private final List<Expression> exprList;
     public Map<String, Integer> symbolTable;
     public ExpressionProcessor(List<Expression> list) {
