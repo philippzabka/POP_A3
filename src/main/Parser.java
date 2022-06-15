@@ -31,6 +31,7 @@ public class Parser {
             // Start Java Compiler
             ExpressionProcessor ep = new ExpressionProcessor(startingRule.expressions);
             ep.initEvaluation();
+            System.out.println("Symbol Table:");
             ep.symbolTable.forEach((k, v) -> System.out.println((k + " = " + v)));
 
             // Start Java Compiler and generate riscv instructions
