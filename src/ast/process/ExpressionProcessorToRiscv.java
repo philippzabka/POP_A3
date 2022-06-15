@@ -31,17 +31,6 @@ public class ExpressionProcessorToRiscv {
         for(Expression e: exprList){
             getEvaluationResult(e, "");
         }
-
-        System.out.println("RegisterTable");
-        for(Map.Entry<String,String> entry : registerTable.entrySet())
-            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-
-        System.out.println("RegisterStack");
-        for (String s : registerStack) System.out.println(s);
-
-        System.out.println("Instructions");
-        for(String instruction:instructions)
-            System.out.println(instruction);
     }
 
     private String getEvaluationResult(Expression e, String token){
@@ -133,14 +122,11 @@ public class ExpressionProcessorToRiscv {
                                                 if (Objects.equals(entry2.getValue(), resultRight))
                                                     register = entry2.getKey();
                                             }
-                                            System.out.println("RES" + resultLeft + " " + resultRight + " " + register);
                                             if (register.equals(""))
                                                 instructions.add("ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
                                             else instructions.add("ADD " + entry.getKey() + ",x0," + register);
-                                            System.out.println("ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
                                             instruction_counter++;
                                         } else {
-                                            System.out.println("ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
                                             instructions.add(branch_instruction_counter, "ADDI " + entry.getKey() + ",x0," + symbolTable.get(resultLeft));
                                             branch_instruction_counter++;
                                         }
@@ -164,7 +150,6 @@ public class ExpressionProcessorToRiscv {
                             } else {
                                 result = result + Integer.parseInt(resultRight);
                             }
-                            System.out.println("+=" + resultLeft + " " + resultRight);
                             symbolTable.put(resultLeft, result);
 
                             // CODEGEN BEGIN
@@ -219,7 +204,6 @@ public class ExpressionProcessorToRiscv {
                     case "<=":
                         register1 = getRegisterByValue(leftSide);
                         register2 = getRegisterByValue(rightSide);
-                        System.out.println("BGE " + register2 + "," + register1 + ",LOOP");
                         instructions.add("BGE " + register2 + "," + register1 + ",LOOP");
                         instruction_counter++;
                         if(valLeft <= valRight) return "true";
@@ -270,9 +254,7 @@ public class ExpressionProcessorToRiscv {
                     } else if (symbolTable.containsKey(left) && !symbolTable.containsKey(right)) {
                         result = getAdditiveResult(symbolTable.get(left), Integer.parseInt(right), op);
                         varsStack.push(Integer.toString(result));
-                        System.out.println();
                         // CODEGEN BEGIN
-                        System.out.println("ADD"+ left + " " + right);
                         String register = getRegisterByValue(left);
                         instructions.add("ADDI "+register+","+register+","+right);
                         instruction_counter++;
@@ -334,11 +316,6 @@ public class ExpressionProcessorToRiscv {
             symbolTable.put(((DirectDeclarator) e).name, null);
             return ((DirectDeclarator) e).name;
         }
-//        if(e instanceof DeclarationSpecifiers){
-//            for(int i = 0; i < ((DeclarationSpecifiers) e).specifiers.size(); i++){
-//                System.out.println(((DeclarationSpecifiers) e).specifiers.get(i));
-//            }
-//        }
         return "";
     }
 

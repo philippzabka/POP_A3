@@ -191,11 +191,6 @@ public class ExpressionProcessor {
             symbolTable.put(((DirectDeclarator) e).name, null);
             return ((DirectDeclarator) e).name;
         }
-//        if(e instanceof DeclarationSpecifiers){
-//            for(int i = 0; i < ((DeclarationSpecifiers) e).specifiers.size(); i++){
-//                System.out.println(((DeclarationSpecifiers) e).specifiers.get(i));
-//            }
-//        }
         return "";
     }
 
