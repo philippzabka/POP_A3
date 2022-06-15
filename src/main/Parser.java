@@ -36,8 +36,8 @@ public class Parser {
             // Start Java Compiler and generate riscv instructions
             ExpressionProcessorToRiscv epRiscv = new ExpressionProcessorToRiscv(startingRule.expressions);
             epRiscv.initEvaluation();
-            String riscvFile = args[0].split("\\.")[0];
-            FileWriter writer = new FileWriter(riscvFile+".s");
+//            String riscvFile = args[0].split("\\.")[0];
+            FileWriter writer = new FileWriter(args[0] + ".s");
             for(String instruction:epRiscv.instructions) {
                 writer.write(instruction + "\n");
             }
